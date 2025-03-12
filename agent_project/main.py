@@ -1,7 +1,6 @@
 import os
 import yaml
 
-from src.llms import make_llm
 from src.modules import Agent
 from src.utils import output_folder, logger
 
@@ -16,8 +15,7 @@ def main():
 
     # Init modules
     logger.info("正在初始化模组")
-    llm = make_llm(config=config)
-    agent = Agent(llm=llm)
+    agent = Agent(config=config)
     logger.info("模组初始化成功")
 
     # Start main loop
@@ -33,7 +31,7 @@ def main():
     # Export memory
     logger.info("正在导出对话记录")
     export_file = os.path.join(output_folder, "memory.json")
-    llm.export_memory(export_file, include_system_prompt=True)
+    agent.llm.export_memory(export_file, include_system_prompt=True)
     logger.info("对话记录导出成功")
 
     logger.info("程序结束")

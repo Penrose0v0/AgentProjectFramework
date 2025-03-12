@@ -1,6 +1,6 @@
 import os
 
-from .llms import LLMBase
+from .llms import make_llm
 from .utils import logger
 
 def load_prompt(prompt: str) -> str:
@@ -12,8 +12,8 @@ def load_prompt(prompt: str) -> str:
 
     
 class Agent: 
-    def __init__(self, llm: LLMBase): 
-        self.llm = llm
+    def __init__(self, config: dict): 
+        self.llm = make_llm(config=config)
 
         system_prompt = load_prompt("agent")
         self.llm.set_system_prompt(system_prompt=system_prompt)
