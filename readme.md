@@ -12,3 +12,7 @@ Finally, run `python .\agent_project\main.py`
 - RAG
 - Various models
 - Support multiple languages
+
+## Memo
+**04-01**\
+Able to call deepseek via SiliconFlow
