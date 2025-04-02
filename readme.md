@@ -14,5 +14,9 @@ Finally, run `python .\agent_project\main.py`
 - Support multiple languages
 
 ## Memo
+**04-02**\
+Basically, if model is local, use `ollama`;\
+if model is online, use `openai`
+
 **04-01**\
 Able to call deepseek via SiliconFlow
