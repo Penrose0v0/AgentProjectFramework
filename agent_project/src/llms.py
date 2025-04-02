@@ -2,7 +2,7 @@ from openai import OpenAI
 import ollama
 import json
 
-from utils import logger
+from .utils import logger
 
 
 class LLMBase: 
@@ -22,7 +22,22 @@ class LLMBase:
         self.system_prompt[0]["content"] = system_prompt
 
     def response(self, prompt, check_response=None): 
-        pass
+        self.memory.append({"role": "user", "content": prompt})
+        messages = self.system_prompt + self.memory
+        completion = self.send_to_model(messages)
+        content = completion.message.content if self.local else completion.choices[0].message.content
+        if "</think>" in content:
+            think, response = map(lambda x: x.strip(), content.split("</think>"))
+            logger.debug(f"Think: {think}")
+        else:
+            response = content
+
+        if check_response is None or check_response(response): 
+            self.memory.append({"role": "assistant", "content": response})
+        else: 
+            logger.warning("Response is not valid")
+
+        return response
 
 
 class GPT(LLMBase): 
@@ -41,18 +56,6 @@ class GPT(LLMBase):
             top_p=kwargs["top_p"]
         )
 
-    def response(self, prompt, check_response=None): 
-        self.memory.append({"role": "user", "content": prompt})
-        messages = self.system_prompt + self.memory
-        completion = self.send_to_model(messages)
-        response = completion.choices[0].message.content
-
-        if check_response is None or check_response(response): 
-            self.memory.append({"role": "assistant", "content": response})
-        else: 
-            logger.warning("Response is not valid")
-
-        return response
 
 class DeepSeek(LLMBase): 
     def __init__(self, **kwargs): 
@@ -83,23 +86,6 @@ class DeepSeek(LLMBase):
             top_p=kwargs["top_p"]
         )
 
-    def response(self, prompt, check_response=None): 
-        self.memory.append({"role": "user", "content": prompt})
-        messages = self.system_prompt + self.memory
-        completion = self.send_to_model(messages)
-        content = completion.message.content if self.local else completion.choices[0].message.content
-        if "</think>" in content:
-            think, response = map(lambda x: x.strip(), content.split("</think>"))
-            logger.debug(f"Think: {think}")
-        else:
-            response = content
-
-        if check_response is None or check_response(response): 
-            self.memory.append({"role": "assistant", "content": response})
-        else: 
-            logger.warning("Response is not valid")
-
-        return response
 
 class QWQ(LLMBase):
     def __init__(self, **kwargs):
@@ -114,32 +100,18 @@ class QWQ(LLMBase):
             }
         )
 
-    def response(self, prompt, check_response=None): 
-        self.memory.append({"role": "user", "content": prompt})
-        messages = self.system_prompt + self.memory
-        completion = self.send_to_model(messages)
-        if "</think>" in completion.message.content:
-            think, response = map(lambda x: x.strip(), completion.message.content.split("</think>"))
-            logger.debug(f"Think: {think}")
-        else:
-            response = completion.message.content
-
-        if check_response is None or check_response(response): 
-            self.memory.append({"role": "assistant", "content": response})
-        else: 
-            logger.warning("Response is not valid")
-
-        return response
-
 
 def make_llm(config: dict) -> LLMBase: 
-    if config["llm"] == "gpt": 
-        llm_cls = GPT
-    elif config["llm"] == "deepseek": 
-        llm_cls = DeepSeek
-    elif config["llm"] == "qwq":
-        llm_cls = QWQ
-    else: 
+    llm_map = {
+        "gpt": GPT,
+        "deepseek": DeepSeek,
+        "qwq": QWQ,
+    }
+
+    llm_name = config["llm"].lower()
+    if llm_name in llm_map:
+        llm_cls = llm_map[llm_name]
+    else:
         raise ValueError(f"Unknown LLM: {config['llm']}")
     
     local = config["local"] if "local" in config else False
