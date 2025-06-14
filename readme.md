@@ -10,10 +10,12 @@ Finally, run `python .\agent_project\main.py`
 
 ## To do
 - RAG
-- Various models
-- Support multiple languages
+- Process \<think> tag
 
 ## Memo
+**06-15**\
+Updated the whole framework with LangChain
+
 **04-02**\
 Basically, if model is local, use `ollama`;\
 if model is online, use `openai`
