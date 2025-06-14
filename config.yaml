@@ -1,5 +1,0 @@
-llm: deepseek  # (gpt, deepseek, qwq)
-local: false
-api_key_path: ./key/key.txt
-temperature: 0.7
-top_p: 0.9

@@ -1,0 +1,4 @@
+provider: ollama
+base_url: http://localhost:11434
+model: qwq:latest
+temperature: 0.7
