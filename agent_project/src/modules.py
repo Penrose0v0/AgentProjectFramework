@@ -1,33 +1,41 @@
 import os
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
-from .llms import make_llm
-from .utils import logger
+from .llms import LLMClient
 
-def load_prompt(prompt: str) -> str:
-    prompt_path = "prompts"
-    prompt_file = prompt + ".txt"
-    with open(os.path.join(prompt_path, prompt_file), 'r', encoding='utf-8') as file: 
-        content = file.read() 
-    return content
 
+class PromptRegistry:
+    def __init__(self, base_dir="prompts"):
+        self.base_dir = base_dir
+
+    def load(self, name):
+        path = os.path.join(self.base_dir, name + ".txt")
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+
+
+class AgentBase:
+    def __init__(self, llm_client: LLMClient):
+        self.llm = llm_client
+
+        self.registry = PromptRegistry()
+        self.system_prompt = SystemMessagePromptTemplate.from_template(self.registry.load("agent"))
+
+    def run(self, user_template: str, stream=False, **kwargs):
+        user_prompt = HumanMessagePromptTemplate.from_template(user_template)
+        prompt = ChatPromptTemplate.from_messages([self.system_prompt, user_prompt])
+        messages = prompt.format_messages(**kwargs)
+        
+        return self.llm.call(messages, stream=stream)
     
-class Agent: 
+
+class TestAgent(AgentBase): 
     def __init__(self, config: dict): 
-        self.llm = make_llm(config=config)
+        super().__init__(LLMClient(config=config))
+        self.prompts = {
+            "chat": self.registry.load("chat")
+        }
 
-        system_prompt = load_prompt("agent")
-        self.llm.set_system_prompt(system_prompt=system_prompt)
+    def chat(self, contents, stream=False): 
+        return self.run(self.prompts["chat"], stream=stream, contents=contents)
     
-    
-    def chat(self, contents: str):
-        """
-        Input: User contents
-        Output: Agent response
-        """
-        prompt_template = load_prompt("chat")
-        prompt = prompt_template.format(contents=contents)
-
-        response = self.llm.response(prompt)
-        logger.debug(f"Response of `chat`: \n{response}")
-
-        return response
