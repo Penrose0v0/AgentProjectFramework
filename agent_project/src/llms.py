@@ -44,7 +44,7 @@ def make_llm(config: dict) -> BaseChatModel:
         )
     
     elif provider == "ollama":
-        from langchain_community.chat_models import ChatOllama
+        from langchain_ollama import ChatOllama
         return ChatOllama(
             model=model,
             temperature=temperature,
