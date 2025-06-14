@@ -5,12 +5,11 @@ from src.modules import TestAgent
 from src.utils import get_next_output_folder
 
 
-def main(): 
+def main(args): 
     print("程序启动")
 
     # Read config
-    config_file = "./configs/qwq_ollama.yaml"
-    with open(config_file, 'r', encoding='utf-8') as file:
+    with open(args.config, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
     output_folder = get_next_output_folder()
 
@@ -41,5 +40,11 @@ def main():
     print("程序结束")
 
 
-if __name__ == "__main__": 
-    main()
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Agent CLI 对话程序")
+    parser.add_argument("--config", type=str, default="./configs/qwq_ollama.yaml", help="LLM config path")
+    args = parser.parse_args()
+
+    main(args)
