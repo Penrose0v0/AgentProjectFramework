@@ -12,6 +12,7 @@ Finally, run `python .\agent_project\main.py`
 - RAG
   - Retrieval
   - Prompt augmentation
+  - PDF loader
 - Process \<think> tag
 - Web UI
 
