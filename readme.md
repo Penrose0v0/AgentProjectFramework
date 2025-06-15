@@ -10,10 +10,17 @@ Finally, run `python .\agent_project\main.py`
 
 ## To do
 - RAG
+  - Retrieval
+  - Prompt augmentation
 - Process \<think> tag
+- Web UI
 
 ## Memo
 **06-15**\
+Init rag component\
+Using Chroma as the vector database
+
+**06-14**\
 Updated the whole framework with LangChain
 
 **04-02**\
