@@ -1,0 +1,7 @@
+embedding_provider: ollama  # openai, huggingface, ollama
+embedding_model: nomic-embed-text
+
+vectorstore_path: ./vectorstore
+
+chunk_size: 1000
+chunk_overlap: 200
