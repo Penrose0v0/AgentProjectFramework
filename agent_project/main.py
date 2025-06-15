@@ -9,12 +9,16 @@ def main(args):
     print("程序启动")
 
     # Read config
-    with open(args.config, 'r', encoding='utf-8') as file:
-        config = yaml.safe_load(file)
+    with open(args.llm_config, 'r', encoding='utf-8') as file:
+        llm_config = yaml.safe_load(file)
+    with open(args.rag_config, 'r', encoding='utf-8') as file:
+        rag_config = yaml.safe_load(file)
+
     output_folder = get_next_output_folder()
 
+
     # Init modules
-    agent = TestAgent(config=config)
+    agent = TestAgent(llm_config=llm_config, rag_config=rag_config)
     print("模组初始化成功")
 
     # Start main loop
@@ -44,7 +48,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Agent CLI 对话程序")
-    parser.add_argument("--config", type=str, default="./configs/qwq_ollama.yaml", help="LLM config path")
+    parser.add_argument("--llm-config", type=str, default="./configs/dsv3_sf.yaml", help="LLM config path")
+    parser.add_argument("--rag-config", type=str, default="./configs/rag_config.yaml", help="RAG config path")
     args = parser.parse_args()
 
     main(args)
