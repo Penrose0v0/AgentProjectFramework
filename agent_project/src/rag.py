@@ -119,7 +119,6 @@ class RAGComponent:
         )
         print(f"Initialized Chroma vectorstore at {vectorstore_path}")
         
-
     def sync_documents(self):
         current_files = set()
         for root, _, files in os.walk(self.rag_dir):
@@ -130,6 +129,15 @@ class RAGComponent:
                     current_files.add(full_path)
                     self._index_document(full_path, source_type=source_type)
         self._remove_deleted_files(current_files)
+
+    def search(self, query: str, k: int = 5) -> List[Document]:
+        try:
+            results = self.vectorstore.similarity_search(query, k=k)
+            print(f"[Search] Top {k} results for query: {query}")
+            return results
+        except Exception as e:
+            print(f"Error during semantic search: {e}")
+            return []
 
     def list_documents(self, limit: int = 10):
         if self.vectorstore is None:
